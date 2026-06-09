@@ -72,59 +72,38 @@ Built for home cooks, meal planners, and anyone who ever opened the fridge and t
 ```mermaid
 flowchart LR
 
-    U([User]) -->|Upload Food Image| F["Frontend
-index.html"]
+    U(User)
+    F(Frontend)
+    B(Flask Backend)
 
-    F -->|POST /detect
-multipart/form-data| B["Flask Backend
-app.py"]
+    U -->|Upload Image| F
+    F -->|POST detect| B
 
-    subgraph PIPELINE["Detection & Recommendation Pipeline"]
-        direction TB
+    subgraph Detection and Recommendation Pipeline
+        D(Load Image)
+        Y(YOLOv8 Inference)
+        C{Detection Found}
+        X(Extract Ingredients)
+        O(Return Original Image)
+        S(Build Ingredient Set)
+        A(Query MealDB)
+        R(Rank Recipes)
+        T(Top 2 Recipes)
 
-        B --> D["Load and Decode Image"]
-
-        D --> Y["YOLOv8 Inference
-best_epoch.pt"]
-
-        Y --> C{"Objects Detected?
-Confidence >= 0.1"}
-
-        C -->|Yes| X["Extract Ingredients
-Draw Bounding Boxes"]
-
-        C -->|No| O["Return Original Image"]
-
-        X --> S["Build Unique
-Ingredient Set"]
-
-        S --> A["Query TheMealDB API
-filter.php"]
-
-        A --> R["Score and Rank Recipes
-by Ingredient Overlap"]
-
-        R --> T["Select Top 2 Recipes"]
+        B --> D
+        D --> Y
+        Y --> C
+        C -->|Yes| X
+        C -->|No| O
+        X --> S
+        S --> A
+        A --> R
+        R --> T
     end
 
-    T -->|JSON Response| F
-    O -->|JSON Response| F
-
-    F -->|Display Results| U
-
-    classDef frontend fill:#0ea5e9,color:#ffffff,stroke:#0369a1,stroke-width:2px;
-    classDef backend fill:#14b8a6,color:#ffffff,stroke:#0f766e,stroke-width:2px;
-    classDef ai fill:#f97316,color:#ffffff,stroke:#c2410c,stroke-width:3px;
-    classDef api fill:#10b981,color:#ffffff,stroke:#047857,stroke-width:2px;
-    classDef ranking fill:#6366f1,color:#ffffff,stroke:#4338ca,stroke-width:2px;
-    classDef decision fill:#facc15,color:#000000,stroke:#ca8a04,stroke-width:2px;
-
-    class F frontend;
-    class B,D,X,S backend;
-    class Y ai;
-    class A api;
-    class R,T ranking;
-    class C decision;
+    T --> F
+    O --> F
+    F --> U
 ```
 
 ---
